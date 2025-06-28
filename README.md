@@ -30,4 +30,4 @@ git clone git@github.com:google-research/google-research.git --depth=1
 
 *Disclaimer: This is not an official Google product.*
 
-Updated in 2025.
+Updated in 2024.
