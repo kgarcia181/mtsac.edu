@@ -1,4 +1,4 @@
-// Copyright 2024 The Google Research Authors.
+// Copyright 2025 The Google Research Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@ syntax = "proto2";
 
 package research_scann;
 
-import "scann/proto/incremental_updates.proto";
+import "scann/data_format/features.proto";
 
 message InputOutputConfig {
   enum InMemoryTypes {
@@ -38,16 +38,34 @@ message InputOutputConfig {
   optional InMemoryTypes in_memory_data_type = 2
       [default = IN_MEMORY_DATA_TYPE_NOT_SPECIFIED];
 
-  optional string database_wildcard = 3;
+  optional bool parallelize_disk_reads_on_startup = 27 [default = false];
+
+  message TableIOConfig {
+    optional string table_name = 1;
+
+    optional string embedding_column_name = 2;
+
+    optional GenericFeatureVector.FeatureType embedding_type = 4;
+
+    optional string docid_column_name = 3;
+  }
+
+  oneof DatabaseInputConfig {
+    string database_wildcard = 3;
+
+    TableIOConfig database_tableio = 28;
+  }
 
   optional bool allow_two_pass_read = 15 [default = false];
 
-  optional string query_wildcard = 8;
+  oneof QueryInputConfig {
+    string query_wildcard = 8;
 
-  oneof IncrementalUpdateMetadataOneof {
-    string incremental_update_metadata_location = 19;
-    IncrementalUpdateMetadata incremental_update_metadata = 22;
+    TableIOConfig query_tableio = 29;
   }
+
+  reserved 19;
+  reserved 22;
 
   optional string output_sstable_wildcard = 11;
 

@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -170,8 +170,8 @@ def log_model_size(params):
     params: A dictionary of string to parameter arrays.
   """
   parameter_overview.log_parameter_overview(params)
-  params_size = jax.tree_map(lambda x: x.size, params)
-  params_size = sum(jax.tree_flatten(params_size)[0])
+  params_size = jax.tree.map(lambda x: x.size, params)
+  params_size = sum(jax.tree.flatten(params_size)[0])
   logging.info('Model params size: %d', params_size)
 
 
@@ -440,7 +440,7 @@ def create_train_state(optimizer_def,
 def has_nan(inputs):
   """returns a boolean if any NaN is found in the `inputs` pytree."""
   inputs = jax_utils.unreplicate(inputs)
-  return any([jnp.any(jnp.isnan(x)) for x in jax.tree_leaves(inputs)])
+  return any([jnp.any(jnp.isnan(x)) for x in jax.tree.leaves(inputs)])
 
 
 def pop_non_savable_collections(
@@ -513,7 +513,6 @@ def train(output_dir,
           clip_target_filters = (),
           clip_pretrained_filters = (),
           frozen_clip_target_filters = (),
-          defragment_every = 0,
           log_flops = True,
           jax_cache_dir = '',
           save_config_file = True,
@@ -585,9 +584,6 @@ def train(output_dir,
     frozen_clip_target_filters: The filter of the CLIP model within the main
       model, especially for the frozen vision backbone ensemble. If the frozen
       backbone is used, this should be set to [('frozen_vision_model', ('.+'))].
-    defragment_every: An integer indicating how often to defrag the TPU memory.
-      Default value = 0 means defragmentation disabled. Enable this when you
-      see TPU memory fragmentation error using large models.
     log_flops: Set to false to disable logging of FLOPs.
     jax_cache_dir: If set, caches the jax compilation in this directory with a
       30 day ttl.
@@ -607,9 +603,6 @@ def train(output_dir,
   log_dir = os.path.join(output_dir, 'train')
   summary_writer = tensorboard.SummaryWriter(
       log_dir) if checkpoint_utils.is_chief() else None
-
-  client = jax.lib.xla_bridge.get_backend()
-  call_defrag = defragment_every > 0 and 'defragment' in dir(client)
 
   logging.info('Creating input generator.')
   data_generator = create_input_generator(
@@ -767,7 +760,7 @@ def train(output_dir,
       grads_norm = flax.core.unfreeze(grads)
       grads_norm = traverse_util.flatten_dict(grads_norm)
       grads_norm = {'.'.join(k): v for k, v in grads_norm.items()}
-      grads_norm = jax.tree_map(jax_opt.l2_norm, grads_norm)
+      grads_norm = jax.tree.map(jax_opt.l2_norm, grads_norm)
       grads_norm['global'] = jax_opt.l2_norm(grads)
     else:
       grads_norm = {}
@@ -789,9 +782,6 @@ def train(output_dir,
   train_rng_key, eval_rng_key = jax.random.split(rng)
   train_rng_key = jax.random.split(train_rng_key, jax.local_device_count())
   eval_rng_key = jax.random.split(eval_rng_key, jax.local_device_count())
-  # Call memory defrag after weight initialization and before training.
-  if call_defrag:
-    client.defragment()
 
   logging.info('Running train loop.')
   for step in range(init_step, total_train_steps):
@@ -831,8 +821,6 @@ def train(output_dir,
       save_config(log_dir, summary_writer)
 
     batch = next(data_generator) if step < total_train_steps - 1 else None
-    if call_defrag and step % defragment_every == 0:
-      client.defragment()
 
 
 def _merge_eval_results(

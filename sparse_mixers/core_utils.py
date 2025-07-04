@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ def scatter_nd(indices, updates,
   """JAX implementation of tf.scatter_nd.
 
   See https://www.tensorflow.org/api_docs/python/tf/scatter_nd, and
-  https://github.com/google/jax/discussions/3658.
+  https://github.com/jax-ml/jax/discussions/3658.
 
   Notes:
   - If multiple indices point to the same position, the output value at this
@@ -73,7 +73,7 @@ def match_fn(prefix):
 
 def tree_flatten_with_names(
     tree):
-  """Like jax.tree_flatten but also fetches leaf names.
+  """Like jax.tree.flatten but also fetches leaf names.
 
   Specialized to parameter trees of the form {"key0": {"subkey0": Any}, ...}.
 
@@ -86,7 +86,7 @@ def tree_flatten_with_names(
   """
   # PyTrees don't treat None values as leaves, so we explicitly declare them as
   # such.
-  vals, tree_def = jax.tree_flatten(tree, is_leaf=lambda x: x is None)
+  vals, tree_def = jax.tree.flatten(tree, is_leaf=lambda x: x is None)
 
   # "Fake" token tree that is use to track jax internal tree traversal and
   # adjust our custom tree traversal to be compatible with it.
@@ -107,7 +107,7 @@ def tree_map_with_names(
     f,
     param_tree,
     filter_fn = lambda name: True):
-  """Like jax.tree_map but with filter on leaf path names.
+  """Like jax.tree.map but with filter on leaf path names.
 
   Specialized to parameter trees of the form {"key0": {"subkey0": Any}, ...}.
 

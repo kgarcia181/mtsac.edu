@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -47,8 +47,8 @@ def make_relative_position_bucket(relative_position, bidirectional=False,
   if num_buckets >= num_possible_positions:
     # Use one bucket for each position.
     relative_position = jnp.clip(relative_position,
-                                 a_min=min_relative_position,
-                                 a_max=max_relative_position)
+                                 min=min_relative_position,
+                                 max=max_relative_position)
     if bidirectional:
       bucket = ((relative_position > 0) * max_distance
                 + jnp.abs(relative_position))
@@ -62,7 +62,7 @@ def make_relative_position_bucket(relative_position, bidirectional=False,
     relative_buckets += (relative_position > 0) * num_buckets
     relative_position = jnp.abs(relative_position)
   else:
-    relative_position = -jnp.clip(relative_position, a_max=0)
+    relative_position = -jnp.clip(relative_position, max=0)
 
   max_exact = num_buckets // 2
   is_small = relative_position < max_exact
@@ -72,7 +72,7 @@ def make_relative_position_bucket(relative_position, bidirectional=False,
       * (num_buckets - max_exact)
   )
   relative_position_if_large = jnp.clip(relative_position_if_large,
-                                        a_max=num_buckets - 1)
+                                        max=num_buckets - 1)
 
   relative_buckets += jnp.where(is_small, relative_position,
                                 relative_position_if_large)

@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,15 +19,14 @@ import functools
 import operator
 from typing import Any
 
-from . import mipnerf
-from . import scene
-
-from absl import logging
 import jax
 import jax.numpy as np
 import ml_collections
 from scenic.projects.baselines.clip import model as clip
 from scenic.projects.baselines.clip import tokenizer as clip_tokenizer
+
+from . import mipnerf
+from . import scene
 
 
 PRNGKey = Any
@@ -62,16 +61,6 @@ class RngGen:
     return _foldin_and_split(self._base_rng, self._counter, num)
 
 
-def defragment():
-  client = jax.lib.xla_bridge.get_backend()
-  logging.info('starting defragment...')
-  try:
-    client.defragment()
-    logging.info('finished defragment')
-  except:  # pylint: disable=bare-except
-    logging.info('defragmentation not implemented')
-
-
 def matmul(a, b):
   """np.matmul defaults to bfloat16, but this helper function doesn't."""
   return np.matmul(a, b, precision=jax.lax.Precision.HIGHEST)
@@ -100,13 +89,13 @@ def all_finite(array):
 
 
 def all_finite_tree(tree):
-  finite_tree = jax.tree_map(all_finite, tree)
-  return all(jax.tree_leaves(finite_tree))
+  finite_tree = jax.tree.map(all_finite, tree)
+  return all(jax.tree.leaves(finite_tree))
 
 
 def state_to_variables(optimizer):
   """Convert an optimizer state to a variable dict."""
-  variables = jax.tree_map(operator.itemgetter(0), optimizer)
+  variables = jax.tree.map(operator.itemgetter(0), optimizer)
   variables = jax.device_get(variables).target
   return variables
 

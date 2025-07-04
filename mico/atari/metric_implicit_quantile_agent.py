@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -138,7 +138,7 @@ def munchausen_target_quantile_values(network, target_params, states,
                                                 tau, axis=0)
 
   tau_log_pi_a = jnp.sum(replay_log_policy * replay_action_one_hot, axis=0)
-  tau_log_pi_a = jnp.clip(tau_log_pi_a, a_min=clip_value_min, a_max=1)
+  tau_log_pi_a = jnp.clip(tau_log_pi_a, min=clip_value_min, max=1)
   munchausen_term = alpha * tau_log_pi_a
   weighted_logits = (
       replay_next_policy * (replay_quantile_values -

@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import tqdm
 def create_mlp_p(state):
   mlp = models.DensityAndFeaturesMLP()
   params = state.params['params']['DensityAndFeaturesMLP_0']
-  params = jax.tree_map(lambda x: jnp.array(x), params)  # pylint: disable=unnecessary-lambda
+  params = jax.tree.map(lambda x: jnp.array(x), params)  # pylint: disable=unnecessary-lambda
 
   def mlp_fn(positions):
     return mlp.apply({'params': params}, positions)

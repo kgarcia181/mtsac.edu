@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -152,11 +152,13 @@ class DistractingBackgroundEnv(control.Environment):
     # Set the sky texture reference.
     sky_height = self._env.physics.model.tex_height[SKY_TEXTURE_INDEX]
     sky_width = self._env.physics.model.tex_width[SKY_TEXTURE_INDEX]
-    sky_size = sky_height * sky_width * 3
+    sky_nchannel = self._env.physics.model.tex_nchannel[SKY_TEXTURE_INDEX]
+    sky_size = sky_height * sky_width * sky_nchannel
     sky_address = self._env.physics.model.tex_adr[SKY_TEXTURE_INDEX]
 
-    sky_texture = self._env.physics.model.tex_rgb[sky_address:sky_address +
-                                                  sky_size].astype(np.float32)
+    sky_texture = self._env.physics.model.tex_data[
+        sky_address : sky_address + sky_size
+    ].astype(np.float32)
 
     if self._video_paths:
 
@@ -218,6 +220,7 @@ class DistractingBackgroundEnv(control.Environment):
         self._current_img_index = 0
         self._step_direction = abs(self._step_direction)
       # Start moving backwards if we are past the end of the images.
+      assert self._background is not None
       if self._current_img_index >= len(self._background.textures):
         self._current_img_index = len(self._background.textures) - 1
         self._step_direction = -abs(self._step_direction)
@@ -233,7 +236,7 @@ class DistractingBackgroundEnv(control.Environment):
       end = self._background.address + self._background.size
       texture = self._background.textures[self._current_img_index]
 
-      self._env.physics.model.tex_rgb[start:end] = texture
+      self._env.physics.model.tex_data[start:end] = texture
       # Upload the new texture to the GPU. Note: we need to make sure that the
       # OpenGL context belonging to this Physics instance is the current one.
       with self._env.physics.contexts.gl.make_current() as ctx:

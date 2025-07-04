@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -219,7 +219,8 @@ class BertExampleBuilder:
       2. FeedDict for the insertion model or None if the BertExample or the
       insertion conversion failed.
     """
-
+    if self._converter is None:
+      raise ValueError('Converter is not set.')
     merged_sources = self._special_glue_string_for_sources.join(sources)
     original_source = merged_sources
     merged_sources = merged_sources.strip()

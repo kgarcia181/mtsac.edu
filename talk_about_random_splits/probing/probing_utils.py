@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -153,7 +153,7 @@ def split_with_wasserstein(texts, test_set_size,
       dtype=np.int8, min_df=min_df)
   logging.info('Creating count vectors.')
   text_counts = vectorizer.fit_transform(texts)
-  text_counts = text_counts.todense()
+  text_counts = text_counts.toarray()
   logging.info('Count vector shape %s.', text_counts.shape)
   logging.info('Creating tree structure.')
   nn_tree = neighbors.NearestNeighbors(

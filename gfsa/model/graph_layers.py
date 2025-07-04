@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -209,7 +209,7 @@ def _forward_and_reverse_subsets(
     reverse_values[edge_type_index] = 1.0
     i += 1
 
-  return jax.tree_map(
+  return jax.tree.map(
       jnp.array,
       (forward_index_map, forward_values, reverse_index_map, reverse_values))
 

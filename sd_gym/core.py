@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -114,7 +114,7 @@ class GymEncoder(json.JSONEncoder):
       return int(o)
     if isinstance(o, (bool, np.bool_)):
       return str(o)
-    if isinstance(o, (np.float_, np.float16, np.float32, np.float64)):
+    if isinstance(o, (np.float16, np.float32, np.float64)):
       return float(o)
     if isinstance(o, np.random.RandomState):
       state = o.get_state()

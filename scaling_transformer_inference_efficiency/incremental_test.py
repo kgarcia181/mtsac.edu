@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 from typing import Any, Sequence
 
 from absl.testing import absltest
+import jax
 from jax import lax
 import jax.numpy as jnp
 import numpy as np
@@ -30,6 +31,8 @@ from scaling_transformer_inference_efficiency import special2
 from scaling_transformer_inference_efficiency.checkpoint import HParams
 from scaling_transformer_inference_efficiency.chunk import Chunk
 from scaling_transformer_inference_efficiency.chunk import FullChunkResult
+
+jax.config.update('jax_threefry_partitionable', False)
 
 
 ################################################################################

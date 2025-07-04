@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -373,7 +373,10 @@ def transform_data(df):
       ]
     else:
       new_column_names.append(col_name)
-  cat_ohe_step = ('ohe', OneHotEncoder(sparse=False, handle_unknown='ignore'))
+  cat_ohe_step = (
+      'ohe',
+      OneHotEncoder(sparse_output=False, handle_unknown='ignore'),
+  )
 
   cat_pipe = Pipeline([cat_ohe_step])
   num_pipe = Pipeline([('identity', FunctionTransformer(validate=True))])

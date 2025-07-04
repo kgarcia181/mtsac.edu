@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -52,6 +52,8 @@ class Checkpointer:
 
   def restore(self, expect_partial = False):
     """Tries to restore the latest checkpoint in the directory."""
+    if self._step is None:
+      raise ValueError('No step variable set.')
     if self._workdir is None:
       return
 
@@ -73,6 +75,8 @@ class Checkpointer:
     return latest
 
   def restore_after(self, step, retries_after = 30):
+    if self._step is None:
+      raise ValueError('No step variable set.')
     while True:
       latest = self.restore()
       if latest is not None and self._step.numpy() > step:
@@ -82,7 +86,11 @@ class Checkpointer:
       time.sleep(retries_after)
 
   def may_save(self, last = False):
+    if self._step is None:
+      raise ValueError('No step variable set.')
     if last or (self._step.numpy() % self._save_every == 0):
+      if self._manager is None:
+        raise ValueError('No checkpoint manager set.')
       with self._strategy.scope():
         self._manager.save(self._step)
 

@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -625,6 +625,7 @@ class Conv1DPolicy(Policy):
     for i in range(len(self.filter_sizes)):
       channels = convolve(channels, self.weights[i], self.strides[i],
                           self.biases[i], self.nonlinearity)
+    assert self.column is not None and self.row is not None
     action = self.second_nonlinearity(
         np.matmul(
             scipy.linalg.toeplitz(self.column, self.row),

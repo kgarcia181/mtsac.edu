@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -84,7 +84,7 @@ def ijv_tuples_to_sparse_coo(ijv_list, sequence_length,
     coo_matrix of shape (sequence_length, num_classes)
   """
   if len(ijv_list) == 0:  # pylint: disable=g-explicit-length-test
-    return scipy.sparse.coo_matrix((sequence_length, num_classes), np.float_)
+    return scipy.sparse.coo_matrix((sequence_length, num_classes), np.float64)
 
   ijv_np = np.array(ijv_list)
 

@@ -1,4 +1,4 @@
-// Copyright 2024 The Google Research Authors.
+// Copyright 2025 The Google Research Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include <utility>
 #include <vector>
 
+#include "absl/base/prefetch.h"
 #include "scann/base/restrict_allowlist.h"
 #include "scann/data_format/datapoint.h"
 #include "scann/data_format/dataset.h"
@@ -32,7 +33,6 @@
 #include "scann/utils/datapoint_utils.h"
 #include "scann/utils/top_n_amortized_constant.h"
 #include "scann/utils/types.h"
-#include "tensorflow/core/platform/prefetch.h"
 
 namespace research_scann {
 namespace asymmetric_hashing_internal {
@@ -348,7 +348,8 @@ template <typename T>
 using make_unsigned_if_int_t = typename make_unsigned_if_int_struct<T>::type;
 
 template <typename DatasetView, typename LookupElement,
-          size_t kCompileTimeNumCenters, typename IndexIterator>
+          size_t kCompileTimeNumCenters, typename IndexIterator,
+          bool kPrefetch = false>
 ABSL_ATTRIBUTE_NOINLINE void
 GetNeighborsViaAsymmetricDistanceWithCompileTimeNumCenters(
     ConstSpan<LookupElement> lookup, size_t runtime_num_centers,
@@ -373,7 +374,24 @@ GetNeighborsViaAsymmetricDistanceWithCompileTimeNumCenters(
 
   DCHECK_GT(num_blocks, 0);
 
+  constexpr size_t kCacheLineSize = 64;
+  const size_t num_cache_lines_per_dp =
+      kPrefetch ? DivRoundUp(num_blocks, kCacheLineSize) : 0;
+
   for (; it.FullUnrollLeft(); it.Advance()) {
+    if constexpr (kPrefetch) {
+      const size_t num_prefetch =
+          std::min(it.kUnrollFactor, it.num_left() - it.kUnrollFactor);
+      for (size_t prefetch_idx : Seq(num_prefetch)) {
+        const size_t offset =
+            it.GetOffsetIndex(prefetch_idx + it.kUnrollFactor);
+        const uint8_t* hashed_database_point = hashed_database->GetPtr(offset);
+        for (size_t cache_line_idx : Seq(num_cache_lines_per_dp)) {
+          absl::PrefetchToLocalCache(hashed_database_point +
+                                     cache_line_idx * kCacheLineSize);
+        }
+      }
+    }
     const uint8_t* hashed_database_point0 =
         hashed_database->GetPtr(it.GetOffsetIndex(0));
     const uint8_t* hashed_database_point1 =
@@ -452,7 +470,14 @@ GetNeighborsViaAsymmetricDistanceWithCompileTimeNumCenters(
   extern_or_nothing template void                                              \
   GetNeighborsViaAsymmetricDistanceWithCompileTimeNumCenters<                  \
       DefaultDenseDatasetView<uint8_t>, LookupElement, kCompileTimeNumCenters, \
-      IndexIterator>(                                                          \
+      IndexIterator, true>(                                                    \
+      ConstSpan<LookupElement> lookup, size_t runtime_num_centers,             \
+      const DefaultDenseDatasetView<uint8_t>* __restrict__ hashed_database,    \
+      IndexIterator it);                                                       \
+  extern_or_nothing template void                                              \
+  GetNeighborsViaAsymmetricDistanceWithCompileTimeNumCenters<                  \
+      DefaultDenseDatasetView<uint8_t>, LookupElement, kCompileTimeNumCenters, \
+      IndexIterator, false>(                                                   \
       ConstSpan<LookupElement> lookup, size_t runtime_num_centers,             \
       const DefaultDenseDatasetView<uint8_t>* __restrict__ hashed_database,    \
       IndexIterator it);

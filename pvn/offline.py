@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -123,7 +123,7 @@ def construct_soft_target_params_update_fn(
   ):
     # The current step is unused as we just EMA the params.
     ema = lambda new, old: (1.0 - tau) * new + tau * old
-    return jax.tree_map(ema, new_params, old_params)
+    return jax.tree.map(ema, new_params, old_params)
 
   return wrapper
 

@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ from typing import Any, Callable, Type, TypeVar, Union
 import dataclasses
 import flax
 import jax
+import jax.extend as jex
 import jax.numpy as jnp
 import numpy as np
 
@@ -267,10 +268,9 @@ def _force_physical_layout_impl(operand):
   return jnp.reshape(flat, operand.shape)
 
 
-force_physical_layout_p = jax.core.Primitive("force_physical_layout")
+force_physical_layout_p = jex.core.Primitive("force_physical_layout")
 force_physical_layout_p.def_impl(_force_physical_layout_impl)
-force_physical_layout_p.def_abstract_eval(
-    lambda operand, **_: jax.core.raise_to_shaped(operand))
+force_physical_layout_p.def_abstract_eval(lambda operand, **_: operand)
 jax.interpreters.mlir.register_lowering(
     force_physical_layout_p, jax.interpreters.mlir.lower_fun(
         _force_physical_layout_impl, multiple_results=False))

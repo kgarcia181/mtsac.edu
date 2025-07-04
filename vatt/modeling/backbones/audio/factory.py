@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ class PredictionAggregator(tf.keras.layers.Layer):
     super(PredictionAggregator, self).__init__(name=name)
     self._num_test_clips = num_test_clips
 
-  def call(self,
+  def call(self,  # pytype: disable=annotation-type-mismatch
            inputs,
            training = None):
     if training or self._num_test_clips == 1:
@@ -138,7 +138,7 @@ class AudioModel(tf.keras.Model):
 
     return losses
 
-  def call(self,  # pytype: disable=signature-mismatch  # overriding-parameter-count-checks
+  def call(self,  # pytype: disable=annotation-type-mismatch,signature-mismatch
            inputs,
            training = None):
     """Call the layer.

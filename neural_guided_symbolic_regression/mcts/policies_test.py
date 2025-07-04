@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -44,8 +44,9 @@ class PolicyBaseTest(tf.test.TestCase):
 
   def test_get_new_states_probs(self):
     policy = policies.PolicyBase()
-    with self.assertRaisesRegexp(NotImplementedError,
-                                 'Must be implemented by subclass'):
+    with self.assertRaisesRegex(
+        NotImplementedError, 'Must be implemented by subclass'
+    ):
       policy.get_new_states_probs(_StateForTest(0))
 
 
@@ -70,9 +71,10 @@ class ProductionRuleAppendPolicyTest(tf.test.TestCase):
 
   def test_get_new_states_probs_type_error(self):
     policy = policies.ProductionRuleAppendPolicy(grammar=self.grammar)
-    with self.assertRaisesRegexp(TypeError,
-                                 r'Input state shoud be an instance of '
-                                 r'states\.ProductionRulesState'):
+    with self.assertRaisesRegex(
+        TypeError,
+        r'Input state shoud be an instance of ' r'states\.ProductionRulesState',
+    ):
       policy.get_new_states_probs(states.StateBase())
 
   def test_get_new_states_probs(self):

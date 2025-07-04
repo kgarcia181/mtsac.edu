@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -116,6 +116,8 @@ class Tokenizer:
 
   def _get_expansions_containing_abbreviation(self):
     """Gets expansions that contain their abbreviations within them."""
+    if self._abbreviation_expansions_dict is None:
+      raise ValueError("No abbreviation expansions dictionary provided.")
     expansions_containing_abbrev = []
     for abbrev, expansions in self._abbreviation_expansions_dict.items():
       abbrev_re = create_word_finder_regex([abbrev])

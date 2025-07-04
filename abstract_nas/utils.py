@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,8 +26,7 @@ import tensorflow.io.gfile as gfile  # pylint: disable=consider-using-from-impor
 
 def report_memory():
   """Prints the size and number of live buffers tracked by the backend."""
-  backend = jax.lib.xla_bridge.get_backend()
-  live_buffers = backend.live_buffers()
+  live_buffers = jax.live_arrays()
   total = 0
   for buf in live_buffers:
     total += buf.size

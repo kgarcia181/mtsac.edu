@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -599,14 +599,13 @@ def training_loop(
         ckptr = orbax.checkpoint.Checkpointer(
             orbax.checkpoint.PyTreeCheckpointHandler()
         )
-        payload = jax.tree_map(
+        payload = jax.tree.map(
             utils.convert_host_local_array_to_global_array,
             state,
         )
         ckptr.save(
             this_checkpoint_dir,
             payload,
-            save_args=flax.training.orbax_utils.save_args_from_target(payload),
             force=True,
         )
 

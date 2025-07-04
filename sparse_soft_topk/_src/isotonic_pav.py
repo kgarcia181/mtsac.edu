@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -449,7 +449,8 @@ def isotonic_mask_pav(s, w, l=1e-1, p=4 / 3, bisect_max_iter=50):
   shape_dtype = jax.ShapeDtypeStruct(
       shape=s.shape,
       dtype=s.dtype,
-      sharding=jax.sharding.GSPMDSharding.get_replicated(jax.devices()),
+      sharding=jax.sharding.NamedSharding(
+          jax.sharding.Mesh(jax.devices(), "x"), jax.sharding.PartitionSpec()),
   )
   sol = jax.pure_callback(
       _isotonic_mask_pav,
@@ -917,7 +918,8 @@ def isotonic_mag_pav(s, w, l=1e-1, p=4 / 3, bisect_max_iter=50):
   shape_dtype = jax.ShapeDtypeStruct(
       shape=s.shape,
       dtype=s.dtype,
-      sharding=jax.sharding.GSPMDSharding.get_replicated(jax.devices()),
+      sharding=jax.sharding.NamedSharding(
+          jax.sharding.Mesh(jax.devices(), "x"), jax.sharding.PartitionSpec()),
   )
   l = jnp.array(l, float)
   sol = jax.pure_callback(

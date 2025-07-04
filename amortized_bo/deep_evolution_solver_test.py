@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 import functools
 
 from absl.testing import parameterized
+import jax
 import jax.numpy as jnp
 import jax.random as jrand
 import numpy as np
@@ -26,6 +27,8 @@ from amortized_bo import controller
 from amortized_bo import deep_evolution_solver
 from amortized_bo import domains
 from amortized_bo import simple_ising_model
+
+jax.config.update("jax_threefry_partitionable", False)
 
 
 def build_domain(length=8, vocab_size=4, **kwargs):

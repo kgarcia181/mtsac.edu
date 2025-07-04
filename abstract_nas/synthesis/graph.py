@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -116,7 +116,7 @@ class SynthesisNode:
     else:
       assert parents
       if not is_output:
-        assert len(parents) == len(op.input_names)
+        assert len(parents) == len(op.input_names)  # pytype: disable=attribute-error
 
   def is_ready(self):
     """Returns whether the node is ready for synthesis.
@@ -192,6 +192,7 @@ class SynthesisNode:
     prefix = f"gen{self.generation}/"
 
     assert len(self.parents) <= 2  # Only support up to binary ops.
+    assert self.op is not None
     assert self.is_output or self.op.num_outputs == 1
 
     parent_output_idx, parent_node = self.parents[parent_idx]

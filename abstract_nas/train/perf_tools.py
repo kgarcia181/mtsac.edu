@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,13 +21,13 @@ import jax
 
 
 def compute_num_params(params_cpu):
-  return sum(p.size for p in jax.tree_flatten(params_cpu)[0])
+  return sum(p.size for p in jax.tree.flatten(params_cpu)[0])
 
 
 def compute_num_flops(f, optimize, *a, **kw):
   m = jax.jit(f).lower(*a, **kw)
   if optimize:
-    analysis = m.compile(m).cost_analysis()[0]
+    analysis = m.compile(m).cost_analysis()  # pytype: disable=wrong-arg-types  # jax-api-types
   else:
     analysis = m.cost_analysis()
   return int(analysis['flops'])

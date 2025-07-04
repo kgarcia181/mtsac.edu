@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -273,7 +273,7 @@ class HamiltonianDataset(ODEDataset):
     # convert the momentum into velocity
     qs, ps = unpack(self.Zs)
     Ms = vmap(vmap(self.mass))(qs)  # pylint: disable=invalid-name
-    vs = jnp.linalg.solve(Ms, ps)
+    vs = jnp.linalg.solve(Ms, ps[Ellipsis, None]).squeeze(-1)
     self.Zs = pack(qs, vs)
 
   def dynamics(self, z, t):

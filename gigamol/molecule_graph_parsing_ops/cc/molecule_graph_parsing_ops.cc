@@ -1,4 +1,4 @@
-// Copyright 2024 The Google Research Authors.
+// Copyright 2025 The Google Research Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -205,7 +205,7 @@ REGISTER_OP("MoleculeGraphParser")
 
       // pair_mask
       c->set_output(4, c->MakeShape({batch_size, max_atoms, max_atoms}));
-      return Status();
+      return absl::Status();
     })
     .Doc(R"doc(
 Unpack atom and atom pair features from MoleculeGraph protos.

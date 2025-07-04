@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -686,7 +686,7 @@ def dictionary_learning(embedding_table,
 
       code = code.tocsr()
       if return_dense:
-        code = code.A
+        code = code.toarray()
 
       return [code, dictionary]
 
@@ -765,6 +765,6 @@ def dictionary_learning(embedding_table,
       dictionary = np.matmul(dictionary, np.transpose(projection_matrix))
 
   if return_dense:
-    code = code.A
+    code = code.toarray()
 
   return [code, dictionary]

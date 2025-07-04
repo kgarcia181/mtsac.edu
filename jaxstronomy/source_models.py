@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ class Interpol():
     coordinates = jnp.concatenate(
         [jnp.expand_dims(coord, axis=0) for coord in [-y_image, x_image]],
         axis=0)
-    coordinates += jnp.reshape(a=offset, newshape=(*offset.shape, 1))
+    coordinates += jnp.reshape(a=offset, shape=(*offset.shape, 1))
     return dm_pix.flat_nd_linear_interpolate_constant(
         image, coordinates, cval=0.0)
 

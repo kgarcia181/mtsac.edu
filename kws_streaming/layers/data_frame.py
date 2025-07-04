@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -158,7 +158,10 @@ class DataFrame(tf.keras.layers.Layer):
 
   def _streaming_internal_state(self, inputs):
     # first dimension is batch size
-    if inputs.shape[0] != self.inference_batch_size:
+    if (
+        inputs.shape[0] is not None
+        and inputs.shape[0] != self.inference_batch_size
+    ):
       raise ValueError(
           'inputs.shape[0]:%d must be = self.inference_batch_size:%d' %
           (inputs.shape[0], self.inference_batch_size))
@@ -201,7 +204,10 @@ class DataFrame(tf.keras.layers.Layer):
 
   def _streaming_external_state(self, inputs, states):
     # first dimension is batch size
-    if inputs.shape[0] != self.inference_batch_size:
+    if (
+        inputs.shape[0] is not None
+        and inputs.shape[0] != self.inference_batch_size
+    ):
       raise ValueError(
           'inputs.shape[0]:%d must be = self.inference_batch_size:%d' %
           (inputs.shape[0], self.inference_batch_size))

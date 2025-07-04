@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -145,6 +145,8 @@ def build_q_filtered_actor(
     all_q_params = params[1]
     if use_img_encoder:
       img_encoder_params = params[2]
+      if networks.img_encoder is None:
+        raise ValueError('networks.img_encoder not initialized.')
       obs = {
           'state_image': networks.img_encoder.apply(
               img_encoder_params, obs['state_image']),
@@ -179,7 +181,7 @@ def build_q_filtered_actor(
       # tile_shape[0] = num_samples
       tile_shape[0] = acts.shape[0]
       return jnp.tile(t, tile_shape)
-    tiled_obs = jax.tree_map(obs_tile_fn, obs)
+    tiled_obs = jax.tree.map(obs_tile_fn, obs)
 
     if ensemble_method == 'deep_ensembles':
       # num_devices x num_per_device x batch_size x 2(because of double-Q)
@@ -240,6 +242,8 @@ def apply_policy_and_sample(
   def apply_and_sample(params, key, obs):
     if use_img_encoder:
       params, encoder_params = params[0], params[1]
+      if networks.img_encoder is None:
+        raise ValueError('networks.img_encoder not initialized.')
       obs = {
           'state_image': networks.img_encoder.apply(
               encoder_params, obs['state_image']),
@@ -258,6 +262,8 @@ def apply_policy_and_sample_with_img_encoder(
 
   def apply_and_sample(params, key, obs):
     img = obs['state_image']
+    if networks.img_encoder is None:
+      raise ValueError('networks.img_encoder not initialized.')
     img_embedding = networks.img_encoder.apply(params[1], img)
     x = dict(state_image=img_embedding, state_dense=obs['state_dense'])
     return sample_fn(networks.policy_network.apply(params[0], x), key)

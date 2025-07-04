@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -921,7 +921,7 @@ def init_model(hparams):
   with model.mesh:
 
     def init_weights():
-      return jax.tree_map(
+      return jax.tree.map(
           lambda array: jnp.zeros(array.shape, array.dtype),
           weights.Weights.make_shaped_arrays(hparams),
       )
@@ -968,7 +968,7 @@ def benchmark_generate_with_model(
     context = pjit.pjit(
         ChunkResult.zeros,
         in_shardings=(),
-        out_shardings=jax.tree_map(
+        out_shardings=jax.tree.map(
             partitioning.logical_to_physical, ChunkResult.logical_axes()
         ),
         static_argnums=(0, 1, 2),
@@ -1283,7 +1283,7 @@ def run_serial_layer(
         jnp.arange(x_axis), jnp.arange(y_axis), jnp.arange(z_axis)
     )
     params = layers_serial.SerialLayer(q, wi, kv, o, wo)
-    # print(jax.tree_map(jnp.shape, params))
+    # print(jax.tree.map(jnp.shape, params))
     kv_caches = KVCache(lengths, k, v, jnp.zeros([0], jnp.int32))
 
     def run():
@@ -1310,7 +1310,11 @@ def benchmark_one(
     # Aiming to implement in external xprof next week
     if jax.config.read('jax_xla_backend') == 'pathways':
       with pathways.xprof_trace(
-          block_until_start=True, devices=jax.devices()[:1]
+          trace_options=xprof_service_pb2.XprofRequest.TraceOptions(
+              enable_python_tracer=True,
+          ),
+          block_until_start=True,
+          devices=jax.devices()[:1],
       ) as url:
         run()
       session_id = url[0].split('/trace_viewer/')[-1]

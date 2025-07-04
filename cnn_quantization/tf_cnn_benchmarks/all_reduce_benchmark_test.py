@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ class AllReduceBenchmarkTest(tf.test.TestCase):
                                 log_fn=test_util.print_and_add_to_list(logs)):
       bench_cnn = benchmark_cnn.BenchmarkCNN(params)
       all_reduce_benchmark.run_benchmark(bench_cnn, num_iters=5)
-      self.assertRegexpMatches(logs[-1], '^Average time per step: [0-9.]+$')
+      self.assertRegex(logs[-1], '^Average time per step: [0-9.]+$')
 
   def test_run_benchmark(self):
     """Tests that run_benchmark() runs successfully."""

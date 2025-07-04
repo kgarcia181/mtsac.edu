@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -239,8 +239,8 @@ class SubgraphEmbedding(nn.Module):
     # TODO(gnegiar): We need to clip the "not a node" node to make sure it
     # propagates gradients correctly. jax.experimental.sparse uses an out of
     # bounds index to encode elements with 0 value.
-    # See https://github.com/google/jax/issues/5760
-    node_ids = jnp.clip(node_ids, a_max=cfg.image_size - 1)
+    # See https://github.com/jax-ml/jax/issues/5760
+    node_ids = jnp.clip(node_ids, max=cfg.image_size - 1)
     position_embs = self.position_embedding(node_ids + 1)
     position_hiddens = self.position_hidden_layer(position_embs)
     # The graph node has no position.

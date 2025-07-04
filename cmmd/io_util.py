@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -133,7 +133,7 @@ def compute_embeddings_for_dir(
 
   all_embs = []
   for batch in tqdm.tqdm(dataset, total=count // batch_size):
-    image_batch = jax.tree_map(np.asarray, batch)
+    image_batch = jax.tree.map(np.asarray, batch)
 
     # Normalize to the [0, 1] range.
     image_batch = image_batch / 255.0

@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -489,8 +489,8 @@ def filter_seq_length(sequence_dir):
   img_files = tf.data.Dataset.list_files(sequence_dir + '/cam0/data/*.png')
   pano_files = tf.data.Dataset.list_files(sequence_dir +
                                           '/cam0_pano/data/*.png')
-  num_imgs = tf.data.experimental.cardinality(img_files)
-  num_panos = tf.data.experimental.cardinality(pano_files)
+  num_imgs = img_files.cardinality()
+  num_panos = pano_files.cardinality()
   return tf.logical_and(tf.equal(num_imgs, 1000), tf.equal(num_panos, 1000))
 
 

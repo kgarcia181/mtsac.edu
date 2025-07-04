@@ -1,4 +1,4 @@
-// Copyright 2024 The Google Research Authors.
+// Copyright 2025 The Google Research Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,8 +30,7 @@ class NodeDefContext {
       : node_def_(node_def) {}
 
   template <class T>
-  tensorflow::Status GetAttr(tensorflow::StringPiece attr_name,
-                             T* value) const {
+  absl::Status GetAttr(absl::string_view attr_name, T* value) const {
     return tensorflow::GetNodeAttr(node_def_, attr_name, value);
   }
 

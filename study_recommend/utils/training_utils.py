@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -215,7 +215,7 @@ def compute_weight_matrix(
 
 def normalize_metrics(metrics):
   """Normalize the metric aggregates to get the mean values."""
-  metrics = jax.tree_map(jnp.sum, metrics)
+  metrics = jax.tree.map(jnp.sum, metrics)
   denominator = metrics.pop('denominator')
   metrics = jax.tree_util.tree_map(lambda x: (x / denominator).item(), metrics)
   return metrics

@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -2215,7 +2215,7 @@ class LayersTest(tf.test.TestCase):
     self.assertAllClose(self.evaluate(output), [1.0, 2.0, 0.0])
 
   def test_maybe_switch_v2_with_none_mask_and_multiple_choices(self):
-    with self.assertRaisesRegexp(ValueError, 'Mask cannot be None'):
+    with self.assertRaisesRegex(ValueError, 'Mask cannot be None'):
       layers.maybe_switch_v2(None, [layers.Identity(), layers.ReLU()])
 
   def test_spatial_masking(self):

@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -134,7 +134,10 @@ class A():
     agnostic = tokenizer.tokenize_and_abstract(source)
     actual_positions_and_kinds = tuple(
         (m.metadata.start.line, m.metadata.start.column, m.metadata.end.line,
-         m.metadata.end.column, m.kind) for m in agnostic)
+         m.metadata.end.column, m.kind)
+        for m in agnostic
+        if m.metadata.start is not None and
+        m.metadata.end is not None)
 
     self.assertSequenceEqual(expected_positions_and_kinds,
                              actual_positions_and_kinds)

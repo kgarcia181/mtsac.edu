@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -491,7 +491,7 @@ def train(config, workdir):
           'resnet_num_filters': model.graph.nn_model.num_filters,
           'resnet_stage_size': model.graph.nn_model.stage_sizes[0],
           'resnet_num_params': sum(
-              x.size for x in jax.tree_leaves(model.params)
+              x.size for x in jax.tree.leaves(model.params)
           ),
           'pass_idx': pass_idx,
       }

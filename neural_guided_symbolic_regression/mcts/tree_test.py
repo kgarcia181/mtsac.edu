@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -276,8 +276,9 @@ class BackPropagationTest(parameterized.TestCase, tf.test.TestCase):
 class ProbsRemoveNaNTest(tf.test.TestCase):
 
   def test_probs_remove_nan_all_nan(self):
-    with self.assertRaisesRegexp(ValueError,
-                                 'All the elements in probs are nan.'):
+    with self.assertRaisesRegex(
+        ValueError, 'All the elements in probs are nan.'
+    ):
       tree.probs_remove_nan(np.array([np.nan, np.nan]))
 
   def test_probs_remove_nan_no_nan(self):

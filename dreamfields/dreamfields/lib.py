@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,12 +21,6 @@ import os
 import time
 from typing import Optional
 
-from . import augment
-from . import helpers
-from . import log
-from . import scene
-from . import schedule
-
 from absl import logging
 from clu import metric_writers
 import flax
@@ -41,6 +35,12 @@ import numpy as onp
 from scipy import stats
 import tensorflow.io.gfile as gfile
 import tqdm
+
+from . import augment
+from . import helpers
+from . import log
+from . import scene
+from . import schedule
 
 
 class DreamField:
@@ -226,7 +226,7 @@ class DreamField:
         last_augs = aux['augs'][-1]
 
       # Average each type of loss over substeps
-      mean_losses = jax.tree_map(np.mean, aux['losses'])
+      mean_losses = jax.tree.map(np.mean, aux['losses'])
       return state, last_augs, mean_losses, aux['scene_origin']
 
     train_pstep = jax.pmap(
@@ -263,9 +263,7 @@ class DreamField:
 
     ## Replicate state.
     step_init = state.state.step
-    helpers.defragment()
     state = flax.jax_utils.replicate(state, jax.devices())
-    helpers.defragment()
 
     ## pmap'd rendering for test time evaluation.
     kwargs_test = dict(rng=None, sigma_noise_std=0.)
@@ -360,7 +358,7 @@ class DreamField:
       rays = camera_ray_batch_base(pose, focal_mult)
       rays_in = shard_rays_jit(rays)
       # Select rays for this process
-      rays_in = jax.tree_map(lambda x: x[pid], rays_in)
+      rays_in = jax.tree.map(lambda x: x[pid], rays_in)
 
       substeps = np.arange(start=step, stop=step + config.substeps, step=1)
 
@@ -426,7 +424,7 @@ class DreamField:
           state, rays_in, keys_pstep, lrs, scs, sns, mrs, betas, accts, acclams)
 
       # Reduce across devices
-      mean_losses = jax.tree_map(np.mean, mean_losses)
+      mean_losses = jax.tree.map(np.mean, mean_losses)
 
       # Gradient skipping if nan.
       if (helpers.all_finite_tree(mean_losses) and
@@ -552,10 +550,6 @@ class DreamField:
 
       if i % config.flush_every == 0:
         writer.flush()
-
-      defrag_every = config.get('defragment_every', default=0)
-      if defrag_every and i % defrag_every == 0:
-        helpers.defragment()
 
       if config.get('checkpoint_every') and i % config.checkpoint_every == 0:
         saved_path = checkpoints.save_checkpoint(  # pytype: disable=wrong-arg-types  # dataclasses-replace
@@ -753,7 +747,7 @@ class DreamField:
       }
 
     metrics = {
-        'renders_by_width': jax.tree_map(onp.array, dict(all_renders_by_width)),
+        'renders_by_width': jax.tree.map(onp.array, dict(all_renders_by_width)),
         'work_unit_configs': work_unit_configs,
         'work_unit_queries': work_unit_queries,
     }

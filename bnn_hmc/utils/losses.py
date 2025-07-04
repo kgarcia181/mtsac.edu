@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ def make_gaussian_log_prior(weight_decay, temperature):
     """Computes the Gaussian prior log-density."""
     # ToDo izmailovpavel: make temperature treatment the same as in gaussian
     # likelihood function.
-    n_params = sum([p.size for p in jax.tree_leaves(params)])
+    n_params = sum([p.size for p in jax.tree.leaves(params)])
     log_prob = -(0.5 * tree_utils.tree_dot(params, params) * weight_decay +
                  0.5 * n_params * jnp.log((2 * math.pi) / weight_decay))
     return log_prob / temperature
@@ -66,7 +66,7 @@ def make_gaussian_log_prior(weight_decay, temperature):
     """Computes the delta in  Gaussian prior log-density."""
     diff = sum([
         jnp.sum(p1**2 - p2**2)
-        for p1, p2 in zip(jax.tree_leaves(params1), jax.tree_leaves(params2))
+        for p1, p2 in zip(jax.tree.leaves(params1), jax.tree.leaves(params2))
     ])
     return -0.5 * weight_decay * diff / temperature
 

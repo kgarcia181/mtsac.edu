@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -612,7 +612,7 @@ class FakePairsLoader:
     }
 
   def load(self, _):
-    ds = tf.data.experimental.RandomDataset().batch(2)
+    ds = tf.data.Dataset.random().batch(2)
     ds = ds.map(self.generate_pair, num_parallel_calls=tf.data.AUTOTUNE)
     return ds
 

@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,6 +40,8 @@ from jax_dft import utils
 
 # Set the default dtype as float64
 config.update('jax_enable_x64', True)
+
+config.update('jax_threefry_partitionable', False)
 
 
 class ScfTest(parameterized.TestCase):

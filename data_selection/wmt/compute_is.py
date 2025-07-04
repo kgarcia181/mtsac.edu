@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -369,12 +369,12 @@ def compute_is_scores(filename):
     writer = csv.writer(fp)
 
     for batch_idx, eval_batch in enumerate(train_iter):
-      eval_batch = jax.tree_map(lambda x: x._numpy(), eval_batch)  # pylint: disable=protected-access
+      eval_batch = jax.tree.map(lambda x: x._numpy(), eval_batch)  # pylint: disable=protected-access
       cur_pred_batch_size = eval_batch['inputs'].shape[0]
       if cur_pred_batch_size % n_devices:
         padded_size = int(
             np.ceil(cur_pred_batch_size / n_devices) * n_devices)
-        eval_batch = jax.tree_map(
+        eval_batch = jax.tree.map(
             lambda x: common.pad_examples(x, padded_size), eval_batch)  # pylint: disable=cell-var-from-loop
       eval_batch = common_utils.shard(eval_batch)
       losses, lengths = p_eval_step(optimizer.target, eval_batch)

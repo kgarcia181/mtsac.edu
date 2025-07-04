@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -201,6 +201,8 @@ class DepthProperty(base.AbstractProperty):
 
   def mutate(self):
     """Mutates the depth property."""
+    if self.depth_map is None:
+      raise ValueError("self.depth_map not set.")
     new_prop = copy.deepcopy(self)
     for _, output_to_depth in new_prop.depth_map.items():
       for output_name, depth in output_to_depth.items():
@@ -228,6 +230,8 @@ class DepthProperty(base.AbstractProperty):
       The distance.
     """
     if self.safety_only: return 0
+    if self.depth_map is None:
+      raise ValueError("self.depth_map not set.")
 
     count = 0
     dist = 0

@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -404,9 +404,9 @@ def run_program(program, inputs):
       return [None] * len(inputs)
     initial_states = [deepcoder_dsl.ProgramState.from_str(i) for i in inputs]
     if FLAGS.model_type == 'baseline_model':
-      result_states = [program.run(state.state) for state in initial_states]
+      result_states = [program.run(state.state) for state in initial_states]  # pytype: disable=attribute-error
     else:
-      result_states = [program.run(state) for state in initial_states]
+      result_states = [program.run(state) for state in initial_states]  # pytype: disable=attribute-error
     outputs = [deepcoder_dsl.result_to_str(result_state.get_output())
                if result_state else None
                for result_state in result_states]
@@ -493,9 +493,9 @@ def per_host_sum_pmap(in_tree):
   devices = [host2devices[k][0] for k in host2devices]
   host_psum = jax.pmap(lambda x: jax.lax.psum(x, 'i'), 'i', devices=devices)
   def pre_pmap(xs):
-    return jax.tree_map(lambda x: jnp.broadcast_to(x, (1,) + x.shape), xs)
+    return jax.tree.map(lambda x: jnp.broadcast_to(x, (1,) + x.shape), xs)
   def post_pmap(xs):
-    return jax.tree_map(lambda x: x[0], xs)
+    return jax.tree.map(lambda x: x[0], xs)
   return post_pmap(host_psum(pre_pmap(in_tree)))
 
 
@@ -877,7 +877,7 @@ def main(_):
       jnp.ones(io_shape, jnp.float32),
       jnp.ones(target_shape, jnp.float32))
 
-  num_params = sum(x.size for x in jax.tree_leaves(initial_variables['params']))
+  num_params = sum(x.size for x in jax.tree.leaves(initial_variables['params']))
   logging.info('Model has %d parameters (embedding_dim=%d, hidden_dim=%d, '
                'num_layers=%d, num_heads=%d).',
                num_params, FLAGS.embedding_dim, FLAGS.hidden_dim,
@@ -977,14 +977,14 @@ def main(_):
         logging.info('Gathering training metrics.')
         metrics_all = common_utils.get_metrics(metrics_all)
         lr = metrics_all.pop('learning_rate').mean()
-        metrics_sums = jax.tree_map(jnp.sum, metrics_all)
+        metrics_sums = jax.tree.map(jnp.sum, metrics_all)
         denominator = metrics_sums.pop('denominator')
-        summary = jax.tree_map(
+        summary = jax.tree.map(
             lambda x: x / denominator,  # pylint: disable=cell-var-from-loop
             metrics_sums)
         summary['learning_rate'] = lr
         # Calculate (clipped) perplexity after averaging log-perplexities:
-        summary['perplexity'] = jnp.clip(jnp.exp(summary['loss']), a_max=1.0e4)
+        summary['perplexity'] = jnp.clip(jnp.exp(summary['loss']), max=1.0e4)
 
         if jax.host_id() == 0:
           logging.info('Train in step: %d, loss: %.4f', step, summary['loss'])
@@ -1010,9 +1010,9 @@ def main(_):
           eval_metrics.append(metrics)
 
         eval_metrics = common_utils.get_metrics(eval_metrics)
-        eval_metrics_sums = jax.tree_map(jnp.sum, eval_metrics)
+        eval_metrics_sums = jax.tree.map(jnp.sum, eval_metrics)
         eval_denominator = eval_metrics_sums.pop('denominator')
-        eval_summary = jax.tree_map(
+        eval_summary = jax.tree.map(
             lambda x: x / eval_denominator,  # pylint: disable=cell-var-from-loop
             eval_metrics_sums)
 
@@ -1047,7 +1047,7 @@ def main(_):
               padded_size = int(
                   np.ceil(cur_pred_batch_size / n_devices) * n_devices)
               # pylint: disable=cell-var-from-loop
-              pred_batch = jax.tree_map(
+              pred_batch = jax.tree.map(
                   lambda x: pad_examples(x, padded_size), pred_batch)
             inputs, outputs, targets, rng = load_data(pred_batch, rng)
 
@@ -1110,7 +1110,7 @@ def main(_):
               top_of_beams.append('\n\n'.join(top_of_beam))
 
           all_total_successes, all_total_denominator = per_host_sum_pmap(
-              jax.tree_map(np.array, (total_successes, total_denominator)))
+              jax.tree.map(np.array, (total_successes, total_denominator)))
 
           logging.info('host %d %s: total_success=%d, total_denominator=%d. '
                        'all_total_successes=%d, all_total_denominator=%d.',

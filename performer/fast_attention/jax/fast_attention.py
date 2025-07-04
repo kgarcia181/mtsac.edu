@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ gin.external_configurable(jnp.tanh, 'jtanh')
 gin.external_configurable(jax.nn.sigmoid, 'jsigmoid')
 gin.external_configurable(
     lambda x: jax.nn.gelu(x, approximate=False), 'jgelu'
-)  # Needs to be exact, although might be slower. See https://github.com/google/jax/issues/4428.
+)  # Needs to be exact, although might be slower. See https://github.com/jax-ml/jax/issues/4428.
 gin.external_configurable(lambda x: x * x * (x > 0.0), 'jrequ')
 gin.external_configurable(jnp.exp, 'jexp')
 gin.external_configurable(lambda x: x, 'jidentity')

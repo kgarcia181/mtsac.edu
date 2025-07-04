@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -95,8 +95,8 @@ def kl_divergence(mean, logvar):
 
 def binary_cross_entropy_loss(x, y):
   """"Binary Cross Entropy Loss."""
-  return -jnp.mean(y * jnp.log(jnp.clip(x, a_min=utils.EPS)) +
-                   (1 - y) * jnp.log(jnp.clip(1 - x, a_min=utils.EPS)))
+  return -jnp.mean(y * jnp.log(jnp.clip(x, min=utils.EPS)) +
+                   (1 - y) * jnp.log(jnp.clip(1 - x, min=utils.EPS)))
 
 
 def logit_binary_cross_entropy_loss(x,

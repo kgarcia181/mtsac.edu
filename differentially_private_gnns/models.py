@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -74,8 +74,10 @@ class OneHopGraphConvolution(nn.Module):
   def __call__(self, graph):
     # Message-passing occurs against the direction of the input edges.
     senders, receivers = graph.receivers, graph.senders
+    if senders is None:
+      raise ValueError('Graph must have senders and receivers.')
 
-    num_nodes = jax.tree_leaves(graph.nodes)[0].shape[0]
+    num_nodes = jax.tree.leaves(graph.nodes)[0].shape[0]
     num_edges = senders.shape[0]
 
     # Compute the convolution by partitioning the edges.

@@ -1,4 +1,4 @@
-// Copyright 2024 The Google Research Authors.
+// Copyright 2025 The Google Research Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,21 +17,28 @@
 #include "scann/data_format/docid_collection.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <string>
 #include <utility>
 #include <vector>
 
+#include "absl/base/optimization.h"
+#include "absl/base/prefetch.h"
+#include "absl/container/inlined_vector.h"
 #include "absl/flags/flag.h"
+#include "absl/functional/any_invocable.h"
+#include "absl/log/check.h"
 #include "absl/strings/str_cat.h"
-#include "absl/time/clock.h"
-#include "absl/time/time.h"
+#include "scann/data_format/docid_collection_interface.h"
+#include "scann/data_format/internal/short_string_optimized_string.h"
+#include "scann/data_format/internal/string_view32.h"
 #include "scann/oss_wrappers/scann_down_cast.h"
+#include "scann/utils/common.h"
 #include "scann/utils/memory_logging.h"
+#include "scann/utils/multi_stage_batch_pipeline.h"
 #include "scann/utils/types.h"
-#include "tensorflow/core/lib/core/status.h"
 
 ABSL_FLAG(bool, use_memory_optimized_immutable_docid_collection, false,
           "Controls which implementation is used for immutable "
@@ -73,7 +80,38 @@ class ImmutableCollection final : public DocidCollectionInterface {
 
   string_view Get(size_t i) const final {
     DCHECK_LT(i, size_);
-    return chunks_[i / kChunkSize].Get(i % kChunkSize);
+    return chunks_[c_idx(i)].Get(c_offset(i));
+  }
+
+  void MultiGet(size_t num_docids, DpIdxGetter docid_idx_getter,
+                StringSetter docid_setter) const final {
+    constexpr size_t kBatchSize = 24;
+    absl::InlinedVector<DatapointIndex, kBatchSize> cached_indices(kBatchSize);
+    auto stage1_cb = [&](size_t idx, size_t in_batch_idx) {
+      cached_indices[in_batch_idx] = docid_idx_getter(idx);
+      DatapointIndex i = cached_indices[in_batch_idx];
+      DCHECK_LT(i, size_);
+      absl::PrefetchToLocalCache(&chunks_[c_idx(i)]);
+    };
+    auto stage2_cb = [&](size_t, size_t in_batch_idx) {
+      DatapointIndex i = cached_indices[in_batch_idx];
+      absl::PrefetchToLocalCache(
+          &chunks_[c_idx(i)].payload_offsets[c_offset(i)]);
+    };
+    auto stage3_cb = [&](size_t, size_t in_batch_idx) {
+      DatapointIndex i = cached_indices[in_batch_idx];
+      const size_t poffset = chunks_[c_idx(i)].payload_offsets[c_offset(i)];
+      absl::PrefetchToLocalCache(&chunks_[c_idx(i)].payloads[poffset]);
+    };
+    auto stage4_cb = [&](size_t idx, size_t in_batch_idx) {
+      DatapointIndex i = cached_indices[in_batch_idx];
+      docid_setter(idx, chunks_[c_idx(i)].Get(c_offset(i)));
+    };
+    RunMultiStageBatchPipeline<kBatchSize, decltype(stage1_cb),
+                               decltype(stage2_cb), decltype(stage3_cb),
+                               decltype(stage4_cb)>(
+        num_docids, {std::move(stage1_cb), std::move(stage2_cb),
+                     std::move(stage3_cb), std::move(stage4_cb)});
   }
 
   size_t capacity() const final { return chunks_.size() * kChunkSize; }
@@ -82,6 +120,9 @@ class ImmutableCollection final : public DocidCollectionInterface {
   StatusOr<DocidCollectionInterface::Mutator*> GetMutator() const final;
 
  private:
+  size_t c_idx(size_t i) const { return i / kChunkSize; }
+  size_t c_offset(size_t i) const { return i % kChunkSize; }
+
   enum : size_t { kChunkSize = 8192 };
   struct Chunk {
     Chunk() { payload_offsets.reserve(kChunkSize); }
@@ -130,7 +171,35 @@ class MutableCollection final : public DocidCollectionInterface {
 
   string_view Get(size_t i) const final {
     DCHECK_LT(i, size_);
-    return chunks_[i / kChunkSize].payload[i % kChunkSize].ToStringPiece();
+    return chunks_[c_idx(i)].payload[c_offset(i)].ToStringPiece();
+  }
+
+  void MultiGet(size_t num_docids, DpIdxGetter docid_idx_getter,
+                StringSetter docid_setter) const final {
+    constexpr size_t kBatchSize = 24;
+    absl::InlinedVector<DatapointIndex, kBatchSize> cached_indices(kBatchSize);
+    auto stage1_cb = [&](size_t idx, size_t in_batch_idx) {
+      cached_indices[in_batch_idx] = docid_idx_getter(idx);
+      DatapointIndex i = cached_indices[in_batch_idx];
+      absl::PrefetchToLocalCache(&chunks_[c_idx(i)]);
+    };
+    auto stage2_cb = [&](size_t, size_t in_batch_idx) {
+      DatapointIndex i = cached_indices[in_batch_idx];
+      absl::PrefetchToLocalCache(&chunks_[c_idx(i)].payload[c_offset(i)]);
+    };
+    auto stage3_cb = [&](size_t, size_t in_batch_idx) {
+      DatapointIndex i = cached_indices[in_batch_idx];
+      Fetch(i).prefetch();
+    };
+    auto stage4_cb = [&](size_t idx, size_t in_batch_idx) {
+      DatapointIndex i = cached_indices[in_batch_idx];
+      docid_setter(idx, Get(i));
+    };
+    RunMultiStageBatchPipeline<kBatchSize, decltype(stage1_cb),
+                               decltype(stage2_cb), decltype(stage3_cb),
+                               decltype(stage4_cb)>(
+        num_docids, {std::move(stage1_cb), std::move(stage2_cb),
+                     std::move(stage3_cb), std::move(stage4_cb)});
   }
 
   size_t capacity() const final { return chunks_.size() * kChunkSize; }
@@ -140,6 +209,9 @@ class MutableCollection final : public DocidCollectionInterface {
   StatusOr<DocidCollectionInterface::Mutator*> GetMutator() const final;
 
  private:
+  size_t c_idx(size_t i) const { return i / kChunkSize; }
+  size_t c_offset(size_t i) const { return i % kChunkSize; }
+
   ShortStringOptimizedString& Fetch(size_t i) {
     return chunks_[i / kChunkSize].payload[i % kChunkSize];
   }
@@ -236,6 +308,14 @@ class ImmutableMemoryOptCollection : public DocidCollectionInterface {
     return payload;
   }
 
+  void MultiGet(size_t num_docids, DpIdxGetter docid_idx_getter,
+                StringSetter docid_setter) const final {
+    for (size_t i = 0; i < num_docids; ++i) {
+      DatapointIndex idx = docid_idx_getter(i);
+      docid_setter(i, Get(idx));
+    }
+  }
+
   size_t capacity() const final { return chunks_.size() * kChunkSize; }
 
   size_t MemoryUsage() const final {
@@ -262,7 +342,7 @@ class ImmutableMemoryOptCollection : public DocidCollectionInterface {
       const char* ptr = chunk.data();
       while (ptr != chunk.data() + chunk.size()) {
         absl::string_view payload = LoadPayload(ptr);
-        TF_CHECK_OK(result->Append(payload));
+        CHECK_OK(result->Append(payload));
         ptr = payload.data() + payload.size();
       }
       std::exchange(chunk, {});
@@ -394,7 +474,7 @@ VariableLengthDocidCollection::GetMutator() const {
         mutable_this->impl_ = std::move(*ptr).ToMutable();
       }
     }
-    TF_ASSIGN_OR_RETURN(
+    SCANN_ASSIGN_OR_RETURN(
         mutator_, VariableLengthDocidCollection::Mutator::Create(mutable_this));
   }
   return static_cast<DocidCollectionInterface::Mutator*>(mutator_.get());
@@ -512,7 +592,7 @@ namespace {
 
 ImmutableCollection::ImmutableCollection(size_t size) {
   for (size_t i = 0; i < size; ++i) {
-    TF_CHECK_OK(Append(""));
+    CHECK_OK(Append(""));
   }
 }
 
@@ -568,7 +648,7 @@ StatusOr<DocidCollectionInterface::Mutator*> ImmutableCollection::GetMutator()
 MutableCollection::MutableCollection(size_t size) {
   Reserve(size);
   for (size_t i = 0; i < size; ++i) {
-    TF_CHECK_OK(Append(""));
+    CHECK_OK(Append(""));
   }
 }
 
@@ -598,7 +678,7 @@ unique_ptr<MutableCollection> MutableCollection::FromImmutableDestructive(
   result->Reserve(static_impl->size());
   for (auto& chunk : static_impl->chunks_) {
     for (size_t i : IndicesOf(chunk.payload_offsets)) {
-      TF_CHECK_OK(result->Append(chunk.Get(i)));
+      CHECK_OK(result->Append(chunk.Get(i)));
     }
     FreeBackingStorage(&chunk.payload_offsets);
     FreeBackingStorage(&chunk.payloads);
@@ -700,13 +780,33 @@ Status FixedLengthDocidCollection::Append(string_view docid) {
   return AppendImpl(docid);
 }
 
+void FixedLengthDocidCollection::MultiGet(size_t num_docids,
+                                          DpIdxGetter docid_idx_getter,
+                                          StringSetter docid_setter) const {
+  constexpr size_t kBatchSize = 24;
+  absl::InlinedVector<DatapointIndex, kBatchSize> cached_indices(kBatchSize);
+
+  auto stage1_cb = [&](size_t idx, size_t in_batch_idx) {
+    cached_indices[in_batch_idx] = docid_idx_getter(idx);
+    DatapointIndex i = cached_indices[in_batch_idx];
+    absl::PrefetchToLocalCache(&arr_[i * docid_length_]);
+  };
+  auto stage2_cb = [&](size_t idx, size_t in_batch_idx) {
+    DatapointIndex i = cached_indices[in_batch_idx];
+    docid_setter(idx, Get(i));
+  };
+
+  RunMultiStageBatchPipeline<kBatchSize, decltype(stage1_cb),
+                             decltype(stage2_cb)>(
+      num_docids, {std::move(stage1_cb), std::move(stage2_cb)});
+}
+
 StatusOr<DocidCollectionInterface::Mutator*>
 FixedLengthDocidCollection::GetMutator() const {
   if (!mutator_) {
     auto mutable_this = const_cast<FixedLengthDocidCollection*>(this);
-    auto statusor = FixedLengthDocidCollection::Mutator::Create(mutable_this);
-    SCANN_RETURN_IF_ERROR(statusor.status());
-    mutator_ = std::move(statusor).value();
+    SCANN_ASSIGN_OR_RETURN(
+        mutator_, FixedLengthDocidCollection::Mutator::Create(mutable_this));
   }
   return static_cast<DocidCollectionInterface::Mutator*>(mutator_.get());
 }

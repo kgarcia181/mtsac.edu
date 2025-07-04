@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -229,7 +229,7 @@ class NumberOfSentences(Instruction):
     if self._comparison_relation == _COMPARISON_RELATION[0]:
       return num_sentences < self._num_sentences_threshold
     elif self._comparison_relation == _COMPARISON_RELATION[1]:
-      return num_sentences >= self._num_sentences_threshold
+      return num_sentences >= self._num_sentences_threshold  # pytype: disable=bad-return-type
 
 
 class PlaceholderChecker(Instruction):
@@ -807,7 +807,7 @@ class KeywordFrequencyChecker(Instruction):
     if self._comparison_relation == _COMPARISON_RELATION[0]:
       return actual_occurrences < self._frequency
     elif self._comparison_relation == _COMPARISON_RELATION[1]:
-      return actual_occurrences >= self._frequency
+      return actual_occurrences >= self._frequency  # pytype: disable=bad-return-type
 
 
 class NumberOfWords(Instruction):
@@ -867,7 +867,7 @@ class NumberOfWords(Instruction):
     if self._comparison_relation == _COMPARISON_RELATION[0]:
       return num_words < self._num_words
     elif self._comparison_relation == _COMPARISON_RELATION[1]:
-      return num_words >= self._num_words
+      return num_words >= self._num_words  # pytype: disable=bad-return-type
 
 
 class JsonFormat(Instruction):

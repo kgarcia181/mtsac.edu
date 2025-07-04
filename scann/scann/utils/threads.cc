@@ -1,4 +1,4 @@
-// Copyright 2024 The Google Research Authors.
+// Copyright 2025 The Google Research Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 #include <string>
 #include <utility>
 
+#include "absl/strings/string_view.h"
 #include "absl/time/time.h"
 
 namespace research_scann {
@@ -29,10 +30,7 @@ unique_ptr<ThreadPool> StartThreadPool(const std::string& pool_name,
     return nullptr;
   }
 
-  tensorflow::ThreadOptions options;
-  options.stack_size = 1048576;
-  auto pool = make_unique<ThreadPool>(tensorflow::Env::Default(), options,
-                                      pool_name, num_threads);
+  auto pool = make_unique<ThreadPool>(pool_name, num_threads);
   return pool;
 }
 

@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ SMALL_LOGIT = -1e10
 
 
 def fill_diagonal(a, val):
-  "From https://github.com/google/jax/issues/2680#issuecomment-804269672"
+  "From https://github.com/jax-ml/jax/issues/2680#issuecomment-804269672"
   assert a.ndim >= 2
   i, j = jnp.diag_indices(min(a.shape[-2:]))
   return a.at[Ellipsis, i, j].set(val)

@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -394,7 +394,7 @@ def entmax(logits, alphas, n_iters, dim):
 
   def rho(logits):
     return jnp.clip(
-        logits, a_min=0.)**jnp.expand_dims((1. / (alphas - 1.)), axis=dim)
+        logits, min=0.)**jnp.expand_dims((1. / (alphas - 1.)), axis=dim)
 
   def loop_fn(tau_tree, _):
     tree_keys = ['tau_min', 'tau_max']

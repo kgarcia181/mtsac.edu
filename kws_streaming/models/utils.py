@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -635,10 +635,20 @@ def ds_tc_resnet_model_params(use_tf_fft=False):
   frames_per_call = total_stride
   frames_number = (frames_number // frames_per_call) * frames_per_call
   # number of input audio samples required to produce one output frame
+  if params.window_stride_samples is None:
+    raise ValueError(
+        'params.window_stride_samples is None in generating parameters for'
+        ' ds_tc_resnet model.'
+    )
+  if params.window_size_samples is None:
+    raise ValueError(
+        'params.window_size_samples is None in generating parameters for'
+        ' ds_tc_resnet model.'
+    )
   framing_stride = max(
       params.window_stride_samples,
-      max(0, params.window_size_samples -
-          params.window_stride_samples))
+      max(0, params.window_size_samples - params.window_stride_samples),
+  )
   signal_size = framing_stride * frames_number
 
   # desired number of samples in the input data to train non streaming model

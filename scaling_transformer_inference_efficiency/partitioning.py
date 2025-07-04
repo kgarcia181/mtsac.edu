@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -301,6 +301,7 @@ def copy_to_device(x, sharding,
     def sharded_zeros():
       return jnp.zeros(x.shape, expected.dtype)
 
+    assert isinstance(sharding.mesh, jax.sharding.Mesh)
     with sharding.mesh:
       return pjit.pjit(
           sharded_zeros, in_shardings=(), out_shardings=sharding.spec

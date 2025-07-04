@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -77,7 +77,7 @@ def iterative_fixed_point(
     # primals to have float0 derivatives. We would prefer them to just be
     # closed over by `fun` or fed into `nondiff_argnums`. Unfortunately that is
     # currently broken because custom_jvp can't handle batch (vmap) tracers in
-    # that case. Once https://github.com/google/jax/pull/4112 merges we should
+    # that case. Once https://github.com/jax-ml/jax/pull/4112 merges we should
     # be able to remove this.
     def int_tangents_to_float(v):
       if np.issubdtype(v.dtype, np.integer):
@@ -85,7 +85,7 @@ def iterative_fixed_point(
       else:
         return v
 
-    dx = jax.tree_map(int_tangents_to_float, dx)
+    dx = jax.tree.map(int_tangents_to_float, dx)
 
     # Solve the system.
     y = solve_forward(x, guess)

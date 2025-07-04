@@ -1,4 +1,4 @@
-// Copyright 2024 The Google Research Authors.
+// Copyright 2025 The Google Research Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 
 #include "npy_array/npy_array.h"
 
+#include <complex>
 #include <cstddef>
 #include <cstdint>
 #include <regex>  // NOLINT: ok to use std::regex in third_party code.
@@ -74,6 +75,11 @@ std::string NpyDataTypeString<float>() {
 template <>
 std::string NpyDataTypeString<double>() {
   return "f";
+}
+
+template <>
+std::string NpyDataTypeString<std::complex<float>>() {
+  return "c";
 }
 
 template <>

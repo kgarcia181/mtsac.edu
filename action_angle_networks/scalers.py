@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -85,9 +85,11 @@ class StandardScaler(Scaler):
     return data * self.std() + self.mean()
 
   def mean(self):
+    assert self._mean is not None
     return self._mean
 
   def std(self):
+    assert self._std is not None
     return self._std
 
   def tree_flatten(self):

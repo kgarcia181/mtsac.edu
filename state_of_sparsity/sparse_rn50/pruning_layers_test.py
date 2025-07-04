@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ class ConvLayerTest(tf.test.TestCase, parameterized.TestCase):
   def testInvalidRank3(self, pruning_method):
 
     input_tensor = tf.ones((self.height, self.width, 3))
-    with self.assertRaisesRegexp(ValueError, 'Rank'):
+    with self.assertRaisesRegex(ValueError, 'Rank'):
       pruning_layers.sparse_conv2d(
           x=input_tensor,
           units=32,
@@ -55,7 +55,7 @@ class ConvLayerTest(tf.test.TestCase, parameterized.TestCase):
   @parameterized.parameters(PRUNING_METHODS)
   def testInvalidRank5(self, pruning_method):
     input_tensor = tf.ones((8, 8, self.height, self.width, 3))
-    with self.assertRaisesRegexp(ValueError, 'Rank'):
+    with self.assertRaisesRegex(ValueError, 'Rank'):
       pruning_layers.sparse_conv2d(
           x=input_tensor,
           units=32,

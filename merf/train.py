@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -455,7 +455,7 @@ def main(unused_argv):
 
   def to_gpu(*x):
     fn = lambda x: jnp.array(x) if x is not None else None
-    return jax.tree_map(fn, x)
+    return jax.tree.map(fn, x)
 
   (
       planes_features_gpu,

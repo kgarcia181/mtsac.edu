@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Memory-efficient MMD implementation in JAX."""
+"""A memory-efficient MMD implementation in JAX."""
 
 import jax
 import jax.numpy as jnp
@@ -30,7 +30,7 @@ _SCALE = 1000
 
 @jax.jit
 def mmd(x, y):
-  """Memory-efficient MMD implementation in JAX.
+  """A memory-efficient MMD implementation in JAX.
 
   This implements the minimum-variance/biased version of the estimator described
   in Eq.(5) of

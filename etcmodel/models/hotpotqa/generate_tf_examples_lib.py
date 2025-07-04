@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -187,7 +187,7 @@ class HotPotQAInputFeatures:
   """The feautres in the tf example for HotpotQA."""
   # The config options for ETC HotpotQA model input. The default is None, but
   # the value must be set before adding tokens to the features.
-  input_config: Optional[HotpotQAInputConfig] = None
+  input_config: HotpotQAInputConfig
 
   # Context features
   # Long token ids with format question paragraph1 paragraph2 ...

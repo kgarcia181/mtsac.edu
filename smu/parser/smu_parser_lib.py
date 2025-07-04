@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -726,7 +726,7 @@ class SmuParser:
     # 012345678901234567890123456789012345678901234567890123456789
     for line, (prefix, fields) in zip(section[1:], GAUSSIAN_SANITY_CHECK_LINES):
       assert str(line).startswith(prefix)
-      parts = line.split()
+      parts = line.split()  # pytype: disable=attribute-error
       if len(fields) == 1:
         setattr(self._molecule.prop.gaussian_sanity_check, fields[0],
                 float(parts[-1]))

@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ def radius_tensor(kernel_dim):
   kernel_radius = float((kernel_dim - 1) // 2)
 
   # Note: Cannot use jnp.arange
-  # (See https://github.com/google/jax/issues/5186#issuecomment-757355059)
+  # (See https://github.com/jax-ml/jax/issues/5186#issuecomment-757355059)
   r_x = np.arange(kernel_radius, kernel_radius - kernel_dim,
                   -1).reshape(1, kernel_dim)
   r_x = jnp.concatenate([r_x] * kernel_dim, axis=0)[:, :, None]

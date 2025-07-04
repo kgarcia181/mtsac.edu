@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -113,7 +113,7 @@ def safe_logit(prob,
   log_false_where_big = jnp.log(forward_clip(1 - prob, minval=epsilon_near_one))
   # When prob is near 0, use log1p for extra precision (and skip this
   # branch of the computation if prob is near 1 to avoid
-  # https://github.com/google/jax/issues/1052)
+  # https://github.com/jax-ml/jax/issues/1052)
   log_false_where_small = jnp.log1p(-jnp.where(prob_is_big, 0, prob))
   log_false = jnp.where(prob_is_big, log_false_where_big, log_false_where_small)
 

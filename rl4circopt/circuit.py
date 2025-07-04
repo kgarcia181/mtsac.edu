@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -614,7 +614,7 @@ class Operation:
 
     # bring the gates into a common format
     return [
-        gate.apply_on(tuple(map(reassign_qubits, qubits)), num_old_qubits)
+        gate.apply_on(tuple(map(reassign_qubits, qubits)), num_old_qubits)  # pytype: disable=wrong-arg-types
         for qubits, gate in operations
     ]
 

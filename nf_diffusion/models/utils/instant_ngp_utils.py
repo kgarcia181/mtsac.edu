@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -223,7 +223,7 @@ def render_rays(rays, vox, rng, config, jitter=True):
     # return x
     def inverse_sigmoid(y):
       def safe_log(x, eps=1e-8):
-        return jnp.log(jnp.clip(x, a_min=eps))
+        return jnp.log(jnp.clip(x, min=eps))
 
       return safe_log(y) - safe_log(1 - y)
 

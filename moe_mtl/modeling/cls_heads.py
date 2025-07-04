@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2024 The Google Research Authors.
+# Copyright 2025 The Google Research Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@
 The implementation follows cloud TPU detection heads.
 """
 from flax import linen as nn
-from flax.deprecated.nn import initializers
 import gin
 import jax.numpy as jnp
 
@@ -38,7 +37,7 @@ class ClassificationHead(nn.Module):
     x = nn.Dense(
         features=self.num_classes,
         name='classification_fc',
-        kernel_init=initializers.xavier_uniform(),
+        kernel_init=nn.initializers.xavier_uniform(),
         dtype=jnp.float32,
     )(
         backbone_features)
