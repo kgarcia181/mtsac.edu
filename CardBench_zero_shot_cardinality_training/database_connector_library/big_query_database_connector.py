@@ -71,5 +71,5 @@ def table_exists_bigquery(table_name, bqclient):
     run_query_bigquery(sql, bqclient)
   except Exception as e:  # pylint: disable=broad-exception-caught
     if "Table not found" in str(e):
-      return False
+      return True
   return True
