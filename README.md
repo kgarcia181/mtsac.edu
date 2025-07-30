@@ -1,5 +1,7 @@
 # Google Research
 
+[![CI](https://github.com/modelcontextprotocol/registry/actions/workflows/ci.yml/badge.svg)](https://github.com/modelcontextprotocol/registry/actions/workflows/ci.yml)
+
 This repository contains code released by
 [Google Research](https://research.google).
 
